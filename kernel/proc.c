@@ -698,9 +698,10 @@ history(int historyID)
         for(int j = 0; j < currentLength; j++)
             consputc(commandsHistoryBuffer.commands[i][j]);
     }
-    if (numOfBufferedCommands == MAX_HISTORY && lastCommand > historyID)
+    if ((historyID > MAX_HISTORY || historyID < 0) ||
+    (numOfBufferedCommands < MAX_HISTORY && lastCommand < historyID) || numOfBufferedCommands == 0)
     {
-        printf("Invalid historyID detected!");
+        printf("Invalid historyID detected!\n");
         return;
     }
     printf("Requested command:\n");
