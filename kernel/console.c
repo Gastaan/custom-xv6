@@ -52,6 +52,15 @@ struct {
   uint e;  // Edit index
 } cons;
 
+struct {
+#define MAX_HISTORY 16
+    char commands[MAX_HISTORY][INPUT_BUF_SIZE];
+    uint commandsLength[MAX_HISTORY];
+    uint lastCommandIndex;
+    int numOfCommandsInMem;
+    int currentCommand; // TODO: What exactly this is?
+} commandsHistoryBuffer;
+
 //
 // user write()s to the console go here.
 //
