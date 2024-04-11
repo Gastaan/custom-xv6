@@ -61,6 +61,9 @@ struct {
     int currentCommand; // TODO: What exactly this is?
 } commandsHistoryBuffer;
 
+#define HISTORY "history"
+void saveCommand();
+
 //
 // user write()s to the console go here.
 //
@@ -178,6 +181,7 @@ consoleintr(int c)
         // wake up consoleread() if a whole line (or end-of-file)
         // has arrived.
         cons.w = cons.e;
+        saveCommand();
         wakeup(&cons.r);
       }
     }
@@ -199,3 +203,15 @@ consoleinit(void)
   devsw[CONSOLE].read = consoleread;
   devsw[CONSOLE].write = consolewrite;
 }
+
+void saveCommand() {
+    int nextIndex = (commandsHistoryBuffer.lastCommandIndex + 1) % MAX_HISTORY;
+    for(int i = 0; i < cons.w - cons.r; i++)
+        commandsHistoryBuffer.commands[nextIndex][i] = cons.buf[cons.r + 1];
+
+    commandsHistoryBuffer.commandsLength[nextIndex] = cons.w - cons.r;
+    commandsHistoryBuffer.lastCommandIndex = nextIndex;
+    commandsHistoryBuffer.numOfCommandsInMem = (commandsHistoryBuffer.numOfCommandsInMem + 1) % 17;
+    commandsHistoryBuffer.currentCommand = nextIndex;
+}
+
