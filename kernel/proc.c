@@ -682,8 +682,32 @@ procdump(void)
   }
 }
 
-void
-history(void)
-{
+extern struct historyBufferArray commandsHistoryBuffer;
 
+void
+history(int historyID)
+{
+    int numOfBufferedCommands = commandsHistoryBuffer.numOfCommandsInMem;
+    int lastCommand = commandsHistoryBuffer.lastCommandIndex;
+    int initialCommand = numOfBufferedCommands == MAX_HISTORY ? lastCommand + 1 : 0;
+
+    for (int i = 0; i < numOfBufferedCommands; i++)
+    {
+        int currentCommand = (initialCommand + i) % MAX_HISTORY;
+        int currentLength = commandsHistoryBuffer.commandsLength[currentCommand];
+        for(int j = 0; j < currentLength; j++)
+            consputc(commandsHistoryBuffer.commands[i][j]);
+    }
+    if (numOfBufferedCommands == MAX_HISTORY && lastCommand > historyID)
+    {
+        printf("Invalid historyID detected!");
+        return;
+    }
+    printf("Requested command:\n");
+
+    int desiredCommand = (initialCommand + historyID) % MAX_HISTORY;
+    uint currentLength = commandsHistoryBuffer.commandsLength[desiredCommand];
+
+    for(int j = 0; j < currentLength; j++)
+        consputc(commandsHistoryBuffer.commands[desiredCommand][j]);
 }

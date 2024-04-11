@@ -9,6 +9,18 @@ struct sleeplock;
 struct stat;
 struct superblock;
 
+#define MAX_HISTORY 16
+#define INPUT_BUF_SIZE 128
+#define HISTORY "history"
+
+struct historyBufferArray {
+    char commands[MAX_HISTORY][INPUT_BUF_SIZE];
+    uint commandsLength[MAX_HISTORY];
+    uint lastCommandIndex;
+    int numOfCommandsInMem;
+    int currentCommand;
+};
+
 // bio.c
 void            binit(void);
 struct buf*     bread(uint, uint);
@@ -106,7 +118,7 @@ void            yield(void);
 int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
-void            history(void);
+void history(int historyID);
 
 // swtch.S
 void            swtch(struct context*, struct context*);
@@ -188,3 +200,4 @@ void            virtio_disk_intr(void);
 
 // number of elements in fixed-size array
 #define NELEM(x) (sizeof(x)/sizeof((x)[0]))
+

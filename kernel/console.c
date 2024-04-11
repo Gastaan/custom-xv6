@@ -45,21 +45,13 @@ struct {
   struct spinlock lock;
   
   // input
-#define INPUT_BUF_SIZE 128
   char buf[INPUT_BUF_SIZE];
   uint r;  // Read index
   uint w;  // Write index
   uint e;  // Edit index
 } cons;
 
-struct {
-#define MAX_HISTORY 16
-    char commands[MAX_HISTORY][INPUT_BUF_SIZE];
-    uint commandsLength[MAX_HISTORY];
-    uint lastCommandIndex;
-    int numOfCommandsInMem;
-    int currentCommand; // TODO: What exactly this is?
-} commandsHistoryBuffer;
+struct historyBufferArray  commandsHistoryBuffer;
 
 #define HISTORY "history"
 void saveCommand();
@@ -213,7 +205,7 @@ int areStringsEqual(char* a, char* b, uint size)
 }
 void saveCommand()
 {
-    if (areStringsEqual(cons.buf, HISTORY, 7))
+    if (areStringsEqual(cons.buf + cons.r, HISTORY, 7))
         return;
 
     uint nextIndex = (commandsHistoryBuffer.lastCommandIndex + 1) % MAX_HISTORY;
@@ -226,7 +218,7 @@ void saveCommand()
 
     commandsHistoryBuffer.commandsLength[nextIndex] = cons.w - cons.r;
     commandsHistoryBuffer.lastCommandIndex = nextIndex;
-    commandsHistoryBuffer.numOfCommandsInMem =  currentNumberOfCommands + 1 > 16 ? 16: currentNumberOfCommands + 1;
+    commandsHistoryBuffer.numOfCommandsInMem =  currentNumberOfCommands + 1 > MAX_HISTORY ? MAX_HISTORY: currentNumberOfCommands + 1;
     commandsHistoryBuffer.currentCommand = nextIndex;
 }
 
