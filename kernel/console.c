@@ -204,14 +204,29 @@ consoleinit(void)
   devsw[CONSOLE].write = consolewrite;
 }
 
-void saveCommand() {
-    int nextIndex = (commandsHistoryBuffer.lastCommandIndex + 1) % MAX_HISTORY;
-    for(int i = 0; i < cons.w - cons.r; i++)
-        commandsHistoryBuffer.commands[nextIndex][i] = cons.buf[cons.r + 1];
+int areStringsEqual(char* a, char* b, uint size)
+{
+        for(int i = 0; i < size; i++)
+            if(a[i] != b[i])
+                return 0;
+    return 1;
+}
+void saveCommand()
+{
+    if (areStringsEqual(cons.buf, HISTORY, 7))
+        return;
+
+    uint nextIndex = (commandsHistoryBuffer.lastCommandIndex + 1) % MAX_HISTORY;
+    uint currentNumberOfCommands = commandsHistoryBuffer.numOfCommandsInMem;
+
+    for(int i = 0; i < cons.w - cons.r; i++) {
+        commandsHistoryBuffer.commands[nextIndex][i] = cons.buf[cons.r + i];
+        consputc(cons.buf[cons.r + i]);
+    }
 
     commandsHistoryBuffer.commandsLength[nextIndex] = cons.w - cons.r;
     commandsHistoryBuffer.lastCommandIndex = nextIndex;
-    commandsHistoryBuffer.numOfCommandsInMem = (commandsHistoryBuffer.numOfCommandsInMem + 1) % 17;
+    commandsHistoryBuffer.numOfCommandsInMem =  currentNumberOfCommands + 1 > 16 ? 16: currentNumberOfCommands + 1;
     commandsHistoryBuffer.currentCommand = nextIndex;
 }
 
