@@ -681,3 +681,9 @@ procdump(void)
     printf("\n");
   }
 }
+
+void
+history(void)
+{
+
+}
