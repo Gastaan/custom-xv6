@@ -21,21 +21,6 @@ struct historyBufferArray {
     int currentCommand;
 };
 
-struct proc_info{
-    char name[16];
-    int pid;
-    int ppid;
-    enum procstate state;
-};
-
-struct top{
-    long uptime;
-    int total_process;
-    int running_process;
-    int sleeping_process;
-    struct proc_info p_list[];
-};
-
 // bio.c
 void            binit(void);
 struct buf*     bread(uint, uint);
@@ -109,6 +94,7 @@ void            panic(char*) __attribute__((noreturn));
 void            printfinit(void);
 
 // proc.c
+struct top;
 int             cpuid(void);
 void            exit(int);
 int             fork(void);
@@ -134,6 +120,7 @@ int             either_copyout(int user_dst, uint64 dst, void *src, uint64 len);
 int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 void history(int historyID);
+int fillTop(struct top*);
 
 // swtch.S
 void            swtch(struct context*, struct context*);

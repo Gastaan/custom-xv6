@@ -1,10 +1,13 @@
 #include "types.h"
+
 #include "param.h"
 #include "memlayout.h"
 #include "riscv.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "top.h"
 #include "defs.h"
+
 
 struct cpu cpus[NCPU];
 
@@ -711,4 +714,11 @@ history(int historyID)
 
     for(int j = 0; j < currentLength; j++)
         consputc(commandsHistoryBuffer.commands[desiredCommand][j]);
+}
+
+int
+fillTop(struct top * t)
+{
+    printf("Yo ");
+    return 0;
 }

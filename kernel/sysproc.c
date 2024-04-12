@@ -5,6 +5,7 @@
 #include "memlayout.h"
 #include "spinlock.h"
 #include "proc.h"
+#include "top.h"
 
 uint64
 sys_exit(void)
@@ -98,4 +99,23 @@ sys_history(void)
     history(historyID);
 
     return 0;
+}
+
+uint64
+sys_top(void)
+{
+    struct top *currentTop;
+    struct top kCurrentTop;
+
+    argaddr(0, (uint64 *) &currentTop);
+    struct proc *p = myproc();
+    copyin(p->pagetable, (char*) currentTop, (uint64) &kCurrentTop, sizeof (kCurrentTop));
+
+    acquire(&tickslock);
+    int err = fillTop(&kCurrentTop);
+    release(&tickslock);
+
+    copyout(p->pagetable, (uint64) currentTop, (char*) &kCurrentTop, sizeof (kCurrentTop));
+
+    return err;
 }
