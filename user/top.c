@@ -9,7 +9,7 @@ main(int argc, char *argv[])
         exit(-1);
 
     struct top currentTop;
-    top(&currentTop):
+    top(&currentTop);
 
     printf("uptime:%d seconds\n", currentTop.uptime / 10);
     printf("total process:%d\n", currentTop.total_process);
