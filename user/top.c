@@ -25,6 +25,7 @@ main(int argc, char *argv[])
             printf("%c", currentTop.p_list[i].name[j] );
         }
         printf("    %d    %d    ", currentTop.p_list[i].pid, currentTop.p_list[i].ppid);
+        printf("%s\n", currentTop.p_list[i].state);
     }
 
     return 0;

@@ -121,6 +121,7 @@ int             either_copyin(void *dst, int user_src, uint64 src, uint64 len);
 void            procdump(void);
 void history(int historyID);
 int top(struct top * t);
+
 // swtch.S
 void            swtch(struct context*, struct context*);
 
