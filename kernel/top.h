@@ -1,6 +1,5 @@
 #include "param.h"
 
-
 struct proc_info{
     char name[16];
     int pid;
@@ -13,5 +12,6 @@ struct top{
     int running_process;
     int sleeping_process;
     struct proc_info p_list[NPROC];
-} ;
+};
 
+int top(struct top * t);

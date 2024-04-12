@@ -112,7 +112,7 @@ sys_top(void)
     copyin(p->pagetable, (char*) currentTop, (uint64) &kCurrentTop, sizeof (kCurrentTop));
 
     acquire(&tickslock);
-    int err = fillTop(&kCurrentTop);
+    int err = top(&kCurrentTop);
     release(&tickslock);
 
     copyout(p->pagetable, (uint64) currentTop, (char*) &kCurrentTop, sizeof (kCurrentTop));

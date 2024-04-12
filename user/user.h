@@ -24,7 +24,7 @@ char* sbrk(int);
 int sleep(int);
 int uptime(void);
 int history(int);
-int fillTop(struct top *);
+int top(struct top *);
 
 // ulib.c
 int stat(const char*, struct stat*);

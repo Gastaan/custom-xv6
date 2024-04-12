@@ -717,8 +717,9 @@ history(int historyID)
 }
 
 int
-fillTop(struct top * t)
+top(struct top * t)
 {
-    printf("Yo ");
+
+    printf("Yo %d", t->uptime/10);
     return 0;
 }

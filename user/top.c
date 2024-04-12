@@ -1,6 +1,6 @@
 #include "kernel/types.h"
+#include "user.h"
 #include "kernel/top.h"
-#include "user/user.h"
 
 int
 main(int argc, char *argv[])
@@ -9,7 +9,7 @@ main(int argc, char *argv[])
         exit(-1);
 
     struct top currentTop;
-    if (fillTop(&currentTop) == -1)
+    if (top(&currentTop) == -1)
         return -1;
 
     printf("uptime:%d seconds\n", currentTop.uptime / 10);
