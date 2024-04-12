@@ -25,7 +25,27 @@ main(int argc, char *argv[])
             printf("%c", currentTop.p_list[i].name[j] );
         }
         printf("    %d    %d    ", currentTop.p_list[i].pid, currentTop.p_list[i].ppid);
-        printf("%s\n", currentTop.p_list[i].state);
+
+        switch(currentTop.p_list[i].state) {
+            case USED:
+                printf("USED\n");
+                break;
+            case SLEEPING:
+                printf("SLEEPING\n");
+                break;
+            case RUNNABLE:
+                printf("RUNNABLE\n");
+                break;
+            case RUNNING:
+                printf("RUNNING\n");
+                break;
+            case ZOMBIE:
+                printf("ZOMBIE\n");
+                break;
+            default:
+                printf("Unknown state\n");
+                break;
+        }
     }
 
     return 0;

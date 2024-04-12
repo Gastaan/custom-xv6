@@ -111,9 +111,8 @@ sys_top(void)
     struct proc *p = myproc();
     copyin(p->pagetable, (char*) currentTop, (uint64) &kCurrentTop, sizeof (kCurrentTop));
 
-    acquire(&tickslock);
+    kCurrentTop.uptime = sys_uptime();
     int err = top(&kCurrentTop);
-    release(&tickslock);
 
     copyout(p->pagetable, (uint64) currentTop, (char*) &kCurrentTop, sizeof (kCurrentTop));
 

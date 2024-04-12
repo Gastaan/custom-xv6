@@ -719,7 +719,44 @@ history(int historyID)
 int
 top(struct top * t)
 {
+    int totalNumberOfProcesses = 0;
+    int numberOfRunningProcesses = 0;
+    int numberOfSleepingProcesses = 0;
 
-    printf("Yo %d", t->uptime/10);
+    for(int i = 0; i < NPROC; i++) {
+
+        struct proc *currentProcess = &proc[i];
+
+        switch(currentProcess->state)
+        {
+            case UNUSED:
+                continue;
+            case RUNNING:
+                numberOfRunningProcesses++;
+                break;
+            case SLEEPING:
+                numberOfSleepingProcesses++;
+                break;
+            default:
+                break;
+        }
+        totalNumberOfProcesses++;
+
+        struct proc_info* currentInfo = &(t->p_list[i]);
+        currentInfo->pid = currentProcess->pid;
+        if (currentProcess->parent != 0)
+            currentInfo->ppid = currentProcess->parent->pid;
+        else
+            currentInfo->ppid = 0;
+        currentInfo->state = currentProcess->state;
+
+        for (int j = 0; j < 16; j++)
+           currentInfo->name[j] = currentProcess->name[j];
+    }
+
+    t->running_process = numberOfRunningProcesses;
+    t->sleeping_process = numberOfSleepingProcesses;
+    t->total_process = totalNumberOfProcesses;
+
     return 0;
 }
