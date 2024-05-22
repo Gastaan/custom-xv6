@@ -737,6 +737,13 @@ uptime(void)
 int
 top(struct top * t)
 {
+
+    if ((uptime() - top_disabled_at) / 10 < 3)
+    {
+        t->stop = 1;
+        return 0;
+    }
+    t->stop = 0;
     int totalNumberOfProcesses = 0;
     int numberOfRunningProcesses = 0;
     int numberOfSleepingProcesses = 0;

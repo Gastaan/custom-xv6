@@ -14,6 +14,7 @@ struct top{
     int total_process;
     int running_process;
     int sleeping_process;
+    int stop;
     struct proc_info p_list[NPROC];
 };
 

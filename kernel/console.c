@@ -53,6 +53,8 @@ struct {
 
 struct historyBufferArray  commandsHistoryBuffer;
 
+int top_disabled_at = -10000;
+
 #define HISTORY "history"
 void saveCommand();
 
@@ -226,6 +228,9 @@ consoleintr(int c)
                   cons.e--;
                   consputc(BACKSPACE);
               }
+              break;
+          case 3:
+              top_disabled_at = uptime();
               break;
           default:
               if (c != 0 && cons.e - cons.r < INPUT_BUF_SIZE) {

@@ -9,7 +9,14 @@ main(int argc, char *argv[])
         exit(-1);
 
     struct top currentTop;
+    currentTop.stop = 0;
+
+    do {
     top(&currentTop);
+
+
+    if (currentTop.stop)
+        break;
 
     print_size = 0;
 
@@ -19,38 +26,42 @@ main(int argc, char *argv[])
     printf("sleeping process:%d\n", currentTop.sleeping_process);
     printf("name    PID     PPID    state\n");
 
-    for(int i = 0; i < currentTop.total_process; i++) {
-        for(int j = 0; j < 16; j++) {
-            if (currentTop.p_list[i].name[j] == '\0')
-                break;
-            printf("%c", currentTop.p_list[i].name[j] );
-        }
-        printf("    %d    %d    ", currentTop.p_list[i].pid, currentTop.p_list[i].ppid);
+        for(int i = 0; i < currentTop.total_process; i++) {
+            for (int j = 0; j < 16; j++) {
+                if (currentTop.p_list[i].name[j] == '\0')
+                    break;
+                printf("%c", currentTop.p_list[i].name[j]);
+            }
+            printf("    %d    %d    ", currentTop.p_list[i].pid, currentTop.p_list[i].ppid);
 
-        switch(currentTop.p_list[i].state) {
-            case USED:
-                printf("USED\n");
-                break;
-            case SLEEPING:
-                printf("SLEEPING\n");
-                break;
-            case RUNNABLE:
-                printf("RUNNABLE\n");
-                break;
-            case RUNNING:
-                printf("RUNNING\n");
-                break;
-            case ZOMBIE:
-                printf("ZOMBIE\n");
-                break;
-            default:
-                printf("Unknown state\n");
-                break;
+            switch (currentTop.p_list[i].state) {
+                case USED:
+                    printf("USED\n");
+                    break;
+                case SLEEPING:
+                    printf("SLEEPING\n");
+                    break;
+                case RUNNABLE:
+                    printf("RUNNABLE\n");
+                    break;
+                case RUNNING:
+                    printf("RUNNING\n");
+                    break;
+                case ZOMBIE:
+                    printf("ZOMBIE\n");
+                    break;
+                default:
+                    printf("Unknown state\n");
+                    break;
+            }
+
+            printf("Age of the process: %d seconds\n", currentTop.p_list[i].time / 10);
+            printf("CPU usage of the process: %f\n", (1.0 * currentTop.p_list[i].cpu) / currentTop.uptime);
         }
 
-        printf("Age of the process: %d seconds\n", currentTop.p_list[i].time / 10);
-        printf("CPU usage of the process: %f\n", (1.0 * currentTop.p_list[i].cpu) / currentTop.uptime);
-    }
-    clean_console();
+        sleep(10);
+        clean_console();
+
+    } while (1);
     return 0;
 }

@@ -33,6 +33,7 @@ void            bunpin(struct buf*);
 void            consoleinit(void);
 void            consoleintr(int);
 void            consputc(int);
+extern int top_disabled_at;
 
 // exec.c
 int             exec(char*, char**);
