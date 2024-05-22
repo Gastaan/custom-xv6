@@ -277,6 +277,8 @@ growproc(int n)
   return 0;
 }
 
+
+
 // Create a new process, copying the parent.
 // Sets up child kernel stack to return as if from fork() system call.
 int
@@ -323,6 +325,8 @@ fork(void)
 
   acquire(&np->lock);
   np->state = RUNNABLE;
+  np->created_at = uptime();
+  np->running_time = 0;
   release(&np->lock);
 
   return pid;
@@ -462,9 +466,12 @@ scheduler(void)
         // to release its lock and then reacquire it
         // before jumping back to us.
         p->state = RUNNING;
+
         c->proc = p;
         swtch(&c->context, &p->context);
 
+
+        p->running_time += 1;
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
@@ -716,6 +723,17 @@ history(int historyID)
         consputc(commandsHistoryBuffer.commands[desiredCommand][j]);
 }
 
+uint64
+uptime(void)
+{
+    uint xticks;
+
+    acquire(&tickslock);
+    xticks = ticks;
+    release(&tickslock);
+    return xticks;
+}
+
 int
 top(struct top * t)
 {
@@ -743,6 +761,10 @@ top(struct top * t)
         totalNumberOfProcesses++;
 
         struct proc_info* currentInfo = &(t->p_list[i]);
+
+        currentInfo->time = ticks - currentProcess->created_at;
+        currentInfo->cpu =  currentProcess->running_time;
+
         currentInfo->pid = currentProcess->pid;
         if (currentProcess->parent != 0)
             currentInfo->ppid = currentProcess->parent->pid;

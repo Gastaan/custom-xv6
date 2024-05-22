@@ -45,6 +45,10 @@ main(int argc, char *argv[])
                 printf("Unknown state\n");
                 break;
         }
+
+        printf("Age of the process: %d seconds\n", currentTop.p_list[i].time / 10);
+        printf("CPU usage of the process: %f\n", (1.0 * currentTop.p_list[i].cpu) / currentTop.uptime);
+
     }
 
     return 0;

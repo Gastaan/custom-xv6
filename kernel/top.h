@@ -2,6 +2,8 @@
 
 struct proc_info{
     char name[16];
+    uint cpu;
+    uint time;
     int pid;
     int ppid;
     enum procstate state;

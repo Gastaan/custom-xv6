@@ -47,6 +47,16 @@ printptr(int fd, uint64 x) {
     putc(fd, digits[x >> (sizeof(uint64) * 8 - 4)]);
 }
 
+void printfloat(int fd, float xx) {
+    int beg = (int)(xx);
+    int fin = (int)(xx * 100) - beg * 100;
+    printint(fd, beg, 10, 1);
+    putc(fd, '.');
+    if (fin < 10)
+        putc(fd, '0');
+    printint(fd, fin, 10, 1);
+}
+
 // Print to the given fd. Only understands %d, %x, %p, %s.
 void
 vprintf(int fd, const char *fmt, va_list ap)
@@ -80,6 +90,9 @@ vprintf(int fd, const char *fmt, va_list ap)
           putc(fd, *s);
           s++;
         }
+      } else if (c == 'f') {
+          float f = va_arg(ap, double); // floats are promoted to double in varargs
+          printfloat(fd, f);
       } else if(c == 'c'){
         putc(fd, va_arg(ap, uint));
       } else if(c == '%'){
