@@ -94,6 +94,8 @@ struct proc {
   struct proc *parent;         // Parent process
 
   // these are private to the process, so p->lock need not be held.
+  uint created_at;             // The tick that process created in.
+  uint running_time;           // The number of ticks that process was running.
   uint64 kstack;               // Virtual address of kernel stack
   uint64 sz;                   // Size of process memory (bytes)
   pagetable_t pagetable;       // User page table
