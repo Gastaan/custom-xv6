@@ -5,11 +5,28 @@
 #include <stdarg.h>
 
 static char digits[] = "0123456789ABCDEF";
+int print_size;
+int lock = 0;
 
 static void
 putc(int fd, char c)
 {
   write(fd, &c, 1);
+  if (!lock)
+    print_size++;
+}
+
+void
+clean_console()
+{
+    lock = 1;
+    for (int i = 0; i < print_size; i++)
+    {
+        printf("\b");
+        printf(" ");
+        printf("\b");
+    }
+    lock = 0;
 }
 
 static void
@@ -119,6 +136,7 @@ fprintf(int fd, const char *fmt, ...)
 void
 printf(const char *fmt, ...)
 {
+
   va_list ap;
 
   va_start(ap, fmt);

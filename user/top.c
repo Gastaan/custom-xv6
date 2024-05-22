@@ -11,6 +11,8 @@ main(int argc, char *argv[])
     struct top currentTop;
     top(&currentTop);
 
+    print_size = 0;
+
     printf("uptime:%d seconds\n", currentTop.uptime / 10);
     printf("total process:%d\n", currentTop.total_process);
     printf("running process:%d\n", currentTop.running_process);
@@ -48,8 +50,7 @@ main(int argc, char *argv[])
 
         printf("Age of the process: %d seconds\n", currentTop.p_list[i].time / 10);
         printf("CPU usage of the process: %f\n", (1.0 * currentTop.p_list[i].cpu) / currentTop.uptime);
-
     }
-
+    clean_console();
     return 0;
 }
