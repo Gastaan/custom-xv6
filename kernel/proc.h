@@ -95,6 +95,7 @@ struct proc {
 
   // these are private to the process, so p->lock need not be held.
   Priority priority;
+  uint waiting_since;
   uint created_at;             // The tick that process created in.
   uint running_time;           // The number of ticks that process was running.
   uint64 kstack;               // Virtual address of kernel stack

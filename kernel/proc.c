@@ -334,6 +334,7 @@ fork(void)
   np->state = RUNNABLE;
   np->priority = PRIORITY_HIGH;
   np->created_at = uptime();
+  np->waiting_since = uptime();
   np->running_time = 0;
   release(&np->lock);
 
@@ -467,25 +468,41 @@ scheduler(void)
     // Avoid deadlock by ensuring that devices can interrupt.
     intr_on();
 
+    struct  proc * priority_process = 0;
     for(p = proc; p < &proc[NPROC]; p++) {
       acquire(&p->lock);
-      if(p->state == RUNNABLE) {
-        // Switch to chosen process.  It is the process's job
-        // to release its lock and then reacquire it
-        // before jumping back to us.
-        p->state = RUNNING;
 
-        c->proc = p;
-        swtch(&c->context, &p->context);
-
-
-        p->running_time += 1;
-        // Process is done running for now.
-        // It should have changed its p->state before coming back.
-        c->proc = 0;
-      }
-      release(&p->lock);
+        if (p->state == RUNNABLE &&
+            (!priority_process ||
+             priority_process->priority > p->priority ||
+             priority_process->waiting_since > p->waiting_since)) {
+            priority_process = p;
+        }
     }
+
+    for (p = proc; p < &proc[NPROC]; p++)
+        if (p != priority_process)
+            release(&p->lock);
+
+      if (priority_process != 0) {
+          // Switch to chosen process.  It is the process's job
+          // to release its lock and then reacquire it
+          // before jumping back to us.
+          priority_process->state = RUNNING;
+          priority_process->waiting_since = uptime();
+          priority_process->priority = (priority_process->priority + 1 < PRIORITY_LOW ?
+                  priority_process->priority + 1 : PRIORITY_LOW);
+
+          c->proc = priority_process;
+          swtch(&c->context, &priority_process->context);
+
+
+          priority_process->running_time += 1;
+          // Process is done running for now.
+          // It should have changed its p->state before coming back.
+          c->proc = 0;
+          release(&priority_process->lock);
+      }
   }
 }
 
