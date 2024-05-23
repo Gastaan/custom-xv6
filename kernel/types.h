@@ -10,3 +10,5 @@ typedef unsigned long uint64;
 typedef uint64 pde_t;
 
 enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
+typedef enum { PRIORITY_LOW = 2, PRIORITY_MEDIUM = 1, PRIORITY_HIGH = 0,} Priority;
+
