@@ -29,6 +29,13 @@ clean_console()
     lock = 0;
 }
 
+void
+reset_console()
+{
+    printf("\x1b[2J");
+    printf("\x1b[H");
+}
+
 static void
 printint(int fd, int xx, int base, int sgn)
 {

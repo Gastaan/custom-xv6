@@ -60,7 +60,7 @@ main(int argc, char *argv[])
         }
 
         sleep(10);
-        clean_console();
+        reset_console();
 
     } while (1);
     return 0;

@@ -36,6 +36,7 @@ void fprintf(int, const char*, ...);
 void printf(const char*, ...);
 extern  int print_size;
 void clean_console();
+void reset_console();
 char* gets(char*, int max);
 uint strlen(const char*);
 void* memset(void*, int, uint);
