@@ -14,7 +14,7 @@ struct cpu cpus[NCPU];
 struct proc proc[NPROC];
 
 struct proc *initproc;
-int priority_Quantum[] = {5, 10, 20};
+int priority_Quantum[] = {5, 10, 20}; // For Highest(0), Medium(1), Low(2) Priorities respectively
 
 
 int nextpid = 1;
