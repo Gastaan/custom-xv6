@@ -123,7 +123,6 @@ void            procdump(void);
 void history(int historyID);
 int top(struct top * t);
 uint64 uptime(void);
-struct priorityQuantumMapping { Priority priority; int quantumTime;} ;
 
 // swtch.S
 void            swtch(struct context*, struct context*);

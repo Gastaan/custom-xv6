@@ -14,12 +14,8 @@ struct cpu cpus[NCPU];
 struct proc proc[NPROC];
 
 struct proc *initproc;
+int priority_Quantum[] = {5, 10, 20};
 
-struct priorityQuantumMapping priority_Quantum[] = {
-        {PRIORITY_HIGH, 5},
-        {PRIORITY_MEDIUM, 10},
-        {PRIORITY_LOW, 20}
-};
 
 int nextpid = 1;
 struct spinlock pid_lock;
@@ -489,7 +485,7 @@ scheduler(void)
           // to release its lock and then reacquire it
           // before jumping back to us.
           priority_process->state = RUNNING;
-          priority_process->waiting_since = uptime();
+          priority_process->running_since = uptime();
           priority_process->priority = (priority_process->priority + 1 < PRIORITY_LOW ?
                   priority_process->priority + 1 : PRIORITY_LOW);
 
@@ -538,7 +534,11 @@ void
 yield(void)
 {
   struct proc *p = myproc();
+  if (uptime() - p->running_since < priority_Quantum[p->priority])
+      return;
+
   acquire(&p->lock);
+  p->waiting_since = uptime();
   p->state = RUNNABLE;
   sched();
   release(&p->lock);
