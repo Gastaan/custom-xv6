@@ -8,6 +8,7 @@
 #include "top.h"
 #include "defs.h"
 
+// 337, 489, 500
 
 struct cpu cpus[NCPU];
 
@@ -334,6 +335,7 @@ fork(void)
   np->running_time = 0;
   release(&np->lock);
 
+  // printf("Pid : %d forked\n", pid);
   return pid;
 }
 
@@ -484,6 +486,10 @@ scheduler(void)
           // Switch to chosen process.  It is the process's job
           // to release its lock and then reacquire it
           // before jumping back to us.
+
+//          printf("The process with id of %d  and priority of %d is switched with cpu (Scheduler)!\n",
+//                 priority_process->pid, priority_process->priority);
+
           priority_process->state = RUNNING;
           priority_process->running_since = uptime();
           priority_process->priority = (priority_process->priority + 1 < PRIORITY_LOW ?
@@ -492,6 +498,8 @@ scheduler(void)
           c->proc = priority_process;
           swtch(&c->context, &priority_process->context);
 
+//          printf("The process with id of %d  and priority of %d is yield)!\n",
+//                 priority_process->pid, priority_process->priority);
 
           priority_process->running_time += 1;
           // Process is done running for now.
@@ -534,7 +542,7 @@ void
 yield(void)
 {
   struct proc *p = myproc();
-  if (uptime() - p->running_since < priority_Quantum[p->priority])
+  if (p->state == RUNNING && (uptime() - p->running_since < priority_Quantum[p->priority]))
       return;
 
   acquire(&p->lock);
