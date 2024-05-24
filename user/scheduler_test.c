@@ -16,6 +16,22 @@ main(int argc, char *argv[])
     {
 
     }
+//    for (int i = 0; i < 1000 * 1000 * 1000; i++)
+//    {
+//
+//    }
+//    for (int i = 0; i < 1000 * 1000 * 1000; i++)
+//    {
+//
+//    }
+//    for (int i = 0; i < 1000 * 1000 * 1000; i++)
+//    {
+//
+//    }
+//    for (int i = 0; i < 1000 * 1000 * 1000; i++)
+//    {
+//
+//    }
 
     printf("The process with id of %d is finished!\n", getpid());
     return 0;
