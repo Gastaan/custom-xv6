@@ -492,18 +492,23 @@ scheduler(void)
 
           priority_process->state = RUNNING;
           priority_process->running_since = uptime();
-          priority_process->priority = (priority_process->priority + 1 < PRIORITY_LOW ?
-                  priority_process->priority + 1 : PRIORITY_LOW);
 
           c->proc = priority_process;
           swtch(&c->context, &priority_process->context);
 
+          priority_process->priority = (priority_process->priority + 1 < PRIORITY_LOW ?
+                                        priority_process->priority + 1 : PRIORITY_LOW);
+
+//          printf("The process was running for %d\n", uptime() - priority_process->running_since);
+//
 //          printf("The process with id of %d  and priority of %d is yield)!\n",
 //                 priority_process->pid, priority_process->priority);
 
-          priority_process->running_time += 1;
+          priority_process->running_time += uptime() - priority_process->running_since + 1;
+
           // Process is done running for now.
           // It should have changed its p->state before coming back.
+
           c->proc = 0;
           release(&priority_process->lock);
       }
