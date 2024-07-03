@@ -12,43 +12,22 @@
 void freerange(void *pa_start, void *pa_end);
 
 extern char end[]; // first address after kernel.
-                   // defined by kernel.ld.
+// defined by kernel.ld.
 
 struct run {
-  struct run *next;
+    struct run *next;
 };
 
 struct {
-  struct spinlock lock;
-  struct run *freelist;
-} kmem;
-
-struct {
     struct spinlock lock;
-    int refcount[PHYSTOP / PGSIZE]; // Reference count for each page
-} kref;
-
-// Increment reference count for a physical page
-void increment_refcount(void *pa) {
-    acquire(&kref.lock);
-    kref.refcount[(uint64)pa / PGSIZE]++;
-    release(&kref.lock);
-}
-
-// Decrement reference count for a physical page
-void decrement_refcount(void *pa) {
-    acquire(&kref.lock);
-    if (--kref.refcount[(uint64)pa / PGSIZE] == 0) {
-        kfree(pa);
-    }
-    release(&kref.lock);
-}
+    struct run *freelist;
+    int refcount[(PHYSTOP >> PGSHIFT)]; // Array to keep track of reference counts
+} kmem;
 
 void
 kinit()
 {
     initlock(&kmem.lock, "kmem");
-    initlock(&kref.lock, "kref");
     freerange(end, (void*)PHYSTOP);
 }
 
@@ -70,45 +49,66 @@ kfree(void *pa)
 {
     struct run *r;
 
-    if(((uint64)pa % PGSIZE) != 0)
+    if(((uint64)pa % PGSIZE) != 0 || (char*)pa < end || (uint64)pa >= PHYSTOP)
         panic("kfree");
 
     acquire(&kmem.lock);
-    acquire(&kref.lock);
 
-    if (--kref.refcount[(uint64)pa / PGSIZE] == 0) {
+    uint64 pa_index = ((uint64)pa) >> PGSHIFT;
+    if(kmem.refcount[pa_index] > 1) {
+        kmem.refcount[pa_index]--;
+    } else {
+        // Fill with junk to catch dangling refs.
         memset(pa, 1, PGSIZE);
-        r = (struct run*)pa;
+        kmem.refcount[pa_index] = 0;
 
+        r = (struct run*)pa;
         r->next = kmem.freelist;
         kmem.freelist = r;
     }
 
-    release(&kref.lock);
     release(&kmem.lock);
 }
 
 // Allocate one 4096-byte page of physical memory.
 // Returns a pointer that the kernel can use.
 // Returns 0 if the memory cannot be allocated.
-
 void *
 kalloc(void)
 {
     struct run *r;
 
     acquire(&kmem.lock);
-
     r = kmem.freelist;
-    if(r)
+    if(r) {
         kmem.freelist = r->next;
+        uint64 pa_index = ((uint64)r) >> PGSHIFT;
+        kmem.refcount[pa_index] = 1; // Initialize refcount to 1 for newly allocated page
+    }
     release(&kmem.lock);
 
-    if(r) {
+    if(r)
         memset((char*)r, 5, PGSIZE); // fill with junk
-        acquire(&kref.lock);
-        kref.refcount[(uint64)r / PGSIZE] = 1; // Initialize refcount
-        release(&kref.lock);
-    }
     return (void*)r;
+}
+
+// Increment the reference count of the physical page at pa
+void increment_refcount(void *pa) {
+    acquire(&kmem.lock);
+    uint64 pa_index = ((uint64)pa) >> PGSHIFT;
+    kmem.refcount[pa_index]++;
+    release(&kmem.lock);
+}
+
+// Decrement the reference count of the physical page at pa
+void decrement_refcount(void *pa) {
+    acquire(&kmem.lock);
+    uint64 pa_index = ((uint64)pa) >> PGSHIFT;
+    if (kmem.refcount[pa_index] > 0) {
+        kmem.refcount[pa_index]--;
+        if (kmem.refcount[pa_index] == 0) {
+            kfree(pa);
+        }
+    }
+    release(&kmem.lock);
 }
