@@ -28,6 +28,22 @@ struct {
     int refcount[PHYSTOP / PGSIZE]; // Reference count for each page
 } kref;
 
+// Increment reference count for a physical page
+void increment_refcount(void *pa) {
+    acquire(&kref.lock);
+    kref.refcount[(uint64)pa / PGSIZE]++;
+    release(&kref.lock);
+}
+
+// Decrement reference count for a physical page
+void decrement_refcount(void *pa) {
+    acquire(&kref.lock);
+    if (--kref.refcount[(uint64)pa / PGSIZE] == 0) {
+        kfree(pa);
+    }
+    release(&kref.lock);
+}
+
 void
 kinit()
 {
