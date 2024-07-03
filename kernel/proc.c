@@ -130,7 +130,7 @@ allocproc(void)
 found:
   p->pid = allocpid();
   p->state = USED;
-
+  p->mem_usage = 0; // Initialize memory usage
   // Allocate a trapframe page.
   if((p->trapframe = (struct trapframe *)kalloc()) == 0){
     freeproc(p);
@@ -276,6 +276,8 @@ growproc(int n)
   } else if(n < 0){
     sz = uvmdealloc(p->pagetable, sz, sz + n);
   }
+
+  p->mem_usage += n;
   p->sz = sz;
   return 0;
 }
@@ -775,7 +777,6 @@ uptime(void)
 int
 top(struct top * t)
 {
-
     if ((uptime() - top_disabled_at) / 10 < 3)
     {
         t->stop = 1;
@@ -785,6 +786,11 @@ top(struct top * t)
     int totalNumberOfProcesses = 0;
     int numberOfRunningProcesses = 0;
     int numberOfSleepingProcesses = 0;
+
+    // Calculate total and free memory
+    int total_memory = total_memory_size();
+    int free_memory = free_memory_size();
+    int used_memory = total_memory - free_memory;
 
     for(int i = 0; i < NPROC; i++) {
 
@@ -818,12 +824,18 @@ top(struct top * t)
         currentInfo->state = currentProcess->state;
 
         for (int j = 0; j < 16; j++)
-           currentInfo->name[j] = currentProcess->name[j];
+            currentInfo->name[j] = currentProcess->name[j];
+
+        // Calculate memory usage percentage
+        currentInfo->mem_usage_percentage = (currentProcess->mem_usage * 100.0) / total_memory;
     }
 
     t->running_process = numberOfRunningProcesses;
     t->sleeping_process = numberOfSleepingProcesses;
     t->total_process = totalNumberOfProcesses;
+    t->total_memory = total_memory;
+    t->free_memory = free_memory;
+    t->used_memory = used_memory;
 
     return 0;
 }

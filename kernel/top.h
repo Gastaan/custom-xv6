@@ -7,6 +7,7 @@ struct proc_info{
     int pid;
     int ppid;
     enum procstate state;
+    float mem_usage_percentage; // Add this field
 };
 
 struct top{
@@ -15,7 +16,8 @@ struct top{
     int running_process;
     int sleeping_process;
     int stop;
+    int total_memory; // Add this field
+    int used_memory;  // Add this field
+    int free_memory;  // Add this field
     struct proc_info p_list[NPROC];
 };
-
-int top(struct top * t);

@@ -22,12 +22,43 @@ struct {
     struct spinlock lock;
     struct run *freelist;
     int refcount[(PHYSTOP >> PGSHIFT)]; // Array to keep track of reference counts
+    int total_pages; // Total number of pages
+    int free_pages;  // Number of free pages
 } kmem;
+
+
+int
+total_memory_size()
+{
+    int x_total_memory_size;
+    acquire(&kmem.lock);
+
+    x_total_memory_size = kmem.total_pages * PGSIZE;
+
+    release(&kmem.lock);
+
+    return x_total_memory_size;
+}
+
+int
+free_memory_size()
+{
+    int x_free_memory_size;
+    acquire(&kmem.lock);
+
+    x_free_memory_size = kmem.free_pages * PGSIZE;
+
+    release(&kmem.lock);
+
+    return x_free_memory_size;
+}
 
 void
 kinit()
 {
     initlock(&kmem.lock, "kmem");
+    kmem.total_pages = 0;
+    kmem.free_pages = 0;
     freerange(end, (void*)PHYSTOP);
 }
 
@@ -62,6 +93,11 @@ kfree(void *pa)
         memset(pa, 1, PGSIZE);
         kmem.refcount[pa_index] = 0;
 
+        kmem.free_pages++; // Increment free_pages
+
+        if (kmem.free_pages > kmem.total_pages)
+            kmem.total_pages = kmem.free_pages;
+
         r = (struct run*)pa;
         r->next = kmem.freelist;
         kmem.freelist = r;
@@ -81,6 +117,7 @@ kalloc(void)
     acquire(&kmem.lock);
     r = kmem.freelist;
     if(r) {
+        kmem.free_pages--; // Decrement free_pages
         kmem.freelist = r->next;
         uint64 pa_index = ((uint64)r) >> PGSHIFT;
         kmem.refcount[pa_index] = 1; // Initialize refcount to 1 for newly allocated page

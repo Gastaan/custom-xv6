@@ -78,6 +78,8 @@ void            kfree(void *);
 void            kinit(void);
 void increment_refcount(void *pa);
 void decrement_refcount(void *pa);
+int total_memory_size();
+int free_memory_size();
 
 // log.c
 void            initlog(int, struct superblock*);
