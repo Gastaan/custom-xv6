@@ -77,19 +77,15 @@ kfree(void *pa)
     acquire(&kref.lock);
 
     if (--kref.refcount[(uint64)pa / PGSIZE] == 0) {
-        release(&kmem.lock);
-        release(&kref.lock);
-
         memset(pa, 1, PGSIZE);
         r = (struct run*)pa;
 
-        acquire(&kmem.lock);
         r->next = kmem.freelist;
         kmem.freelist = r;
-    } else {
-        release(&kmem.lock);
-        release(&kref.lock);
     }
+
+    release(&kref.lock);
+    release(&kmem.lock);
 }
 
 // Allocate one 4096-byte page of physical memory.
